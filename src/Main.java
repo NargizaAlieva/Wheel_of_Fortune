@@ -6,6 +6,45 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
     }
 
+    public static void clearScreen() {
+        System.out.print("\033[H\033[2J");
+        System.out.flush();
+    }
+
+    public static String[][] createPlayersMatrix() {
+        Scanner scanner = new Scanner(System.in);
+        Random random = new Random();
+
+        System.out.print("Enter players number: ");
+        int playersNumber = scanner.nextInt();
+
+        String[][] playersNameScore = new String[playersNumber][playersNumber];
+
+        for (int i = 0; i < playersNumber; i++) {
+            playersNameScore[i][0] = "0";
+            playersNameScore[i][1] = "0";
+        }
+        for (int j = 0; j < playersNumber; j++) {
+            if(j > 0)
+                System.out.print("Enter your name: ");
+            int randomIndex = random.nextInt(playersNumber);
+            while (!playersNameScore[randomIndex][0].equals("0")) {
+                randomIndex = random.nextInt(playersNumber);
+            }
+            playersNameScore[randomIndex][0] = scanner.nextLine();
+        }
+
+        for (int j = 0; j < playersNumber; j++) {
+            if (playersNameScore[j][0].isEmpty()) {
+                System.out.print("Enter your name: ");
+                playersNameScore[j][0] = scanner.nextLine();
+            }
+        }
+
+        return playersNameScore;
+
+    }
+
     public static char[] createAlphabet() {
         char[] alphabet = new char[26];
         char letter = 'a';
