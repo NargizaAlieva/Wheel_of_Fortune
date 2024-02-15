@@ -1,9 +1,19 @@
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
+        ArrayList<Character> wrongChar = new ArrayList<Character>();
+        ArrayList<Character> correctChar = new ArrayList<Character>();
+        int randomIndex = chooseRandomIndex();
+        char[] wordSpase = new char[convertWordToArray(randomIndex).length];
+        Arrays.fill(wordSpase, '_');
+
+        String[][] playersMatrix = createPlayersMatrix();
+        String playerInput = " ";
     }
 
     public static void clearScreen() {
@@ -42,6 +52,127 @@ public class Main {
         }
 
         return playersNameScore;
+
+    }
+    public static boolean isLetterRepeated (String playerInput, ArrayList<Character> wrongChars, ArrayList<Character> correctChars) {
+        if (isItLetter(playerInput)) {
+            for (Character character : correctChars) {
+                if (convertInputToArray(playerInput)[0] == character) {
+                    return true;
+                }
+            }
+            for (Character character : wrongChars) {
+                if (convertInputToArray(playerInput)[0] == character) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    public static boolean isWordCorrect(String playerInput, int randomIndex) {
+        return createDatabase()[randomIndex][0].equals(playerInput);
+    }
+
+    public static boolean isLetterCorrect(String playerInput, int randomIndex) {
+        for (int j = 0; j < convertWordToArray(randomIndex).length; j++) {
+            if (convertWordToArray(randomIndex)[j] == convertInputToArray(playerInput)[0])
+                return true;
+        }
+        return false;
+    }
+
+    public static boolean isItLetter(String playerInput) {
+        char[] inputtedWord = convertInputToArray(playerInput);
+        return inputtedWord.length == 1;
+    }
+
+    public static char[] convertInputToArray(String playerInput) {
+        return playerInput.toLowerCase().toCharArray();
+    }
+
+    public static void printUpdatedDescription(String[][] playersMatrix, String playerInput, ArrayList<Character> wrongChars, ArrayList<Character> correctChars, int randomIndex, char[] wordSpase) {
+        clearScreen();
+        printPlayersScore (playersMatrix);
+        updateAlphabet(playerInput, randomIndex, wrongChars, correctChars);
+
+        System.out.print("\n\u001B[36m" + createDatabase()[randomIndex][1] + "\n\u001B[0m");
+
+        if (isItLetter(playerInput)) {
+            for (int i = 0; i < wordSpase.length; i++) {
+                if (isLetterCorrect(playerInput, randomIndex)) {
+                    if (convertWordToArray(randomIndex)[i] == convertInputToArray(playerInput)[0])
+                        wordSpase[i] = convertWordToArray(randomIndex)[i];
+                }
+            }
+        }
+
+        for (char letter : wordSpase) {
+            if (letter != '_')
+                System.out.print("\u0332" + letter + " ");
+            else
+                System.out.print(letter + " ");
+        }
+        System.out.println("\n");
+    }
+
+    public static void printPlayersScore (String[][] playersMatrix) {
+        char[] longestName = convertInputToArray(playersMatrix[0][0]);
+        for (int n = 1; n < playersMatrix.length; n++) {
+            if (longestName.length < convertInputToArray(playersMatrix[n][0]).length)
+                longestName = convertInputToArray(playersMatrix[n][0]);
+        }
+
+        for (int m = 0; m < longestName.length + 12; m++)
+            System.out.print("\u001B[36m" + "_" + "\u001B[0m");
+        for (String[] matrix : playersMatrix) {
+            System.out.println();
+            System.out.print("\u001B[36m| \u001B[0m" + matrix[0] + "\u001B[33m ---> \u001B[34m" + matrix[1]);
+        }
+        System.out.println();
+        for (int m = 0; m < longestName.length + 12; m++) {
+            System.out.print("\u001B[36m" + "_" + "\u001B[0m");
+        }
+        System.out.println("\n");
+    }
+
+    public static void updateWordSpace(String playerInput, int randomIndex, char[] wordSpace) {
+        for (int i = 0; i < wordSpace.length; i++) {
+            if (isLetterCorrect(playerInput, randomIndex)) {
+                if (convertWordToArray(randomIndex)[i] == convertInputToArray(playerInput)[0])
+                    wordSpace[i] = convertWordToArray(randomIndex)[i];
+            }
+        }
+    }
+
+    public static void updateAlphabet(String playerInput, int randomIndex, ArrayList<Character> wrongChars, ArrayList<Character> correctChars) {
+        char inputtedChar = convertInputToArray(playerInput)[0];
+        if (!isLetterRepeated(playerInput, wrongChars, correctChars))
+            if (isItLetter(playerInput)) {
+                if (isLetterCorrect(playerInput, randomIndex))
+                    correctChars.add(inputtedChar);
+                else
+                    wrongChars.add(inputtedChar);
+            }
+
+        for (int i = 0; i < createAlphabet().length; i++) {
+            boolean isLetterPrinted = false;
+            for (Character character : correctChars) {
+                if (createAlphabet()[i] == character) {
+                    isLetterPrinted = true;
+                    System.out.print("\u001B[32m" + character + " \u001B[0m");
+                }
+            }
+
+            for (Character character : wrongChars) {
+                if (createAlphabet()[i] == character) {
+                    isLetterPrinted = true;
+                    System.out.print("\u001B[31m" + character + " \u001B[0m");
+                }
+            }
+            if (!isLetterPrinted)
+                System.out.print(createAlphabet()[i] + " ");
+        }
+        System.out.println();
 
     }
 
