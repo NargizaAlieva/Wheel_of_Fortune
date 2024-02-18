@@ -13,12 +13,37 @@ public class Main {
         Arrays.fill(wordSpase, '_');
 
         String[][] playersMatrix = createPlayersMatrix();
+
         String playerInput = " ";
+        int playerIndex = 0;
     }
 
     public static void clearScreen() {
         System.out.print("\033[H\033[2J");
         System.out.flush();
+    }
+
+    public static int identifyHighestScore(String[][] playersMatrix) {
+        int highestScore = 0;
+        for (String[] plNum : playersMatrix) {
+            if (highestScore < Integer.parseInt(plNum[1])) {
+                highestScore = Integer.parseInt(plNum[1]);
+            }
+        }
+        return highestScore;
+    }
+
+    public static void addPlayersPoints(String[][] playersMatrix, int playerIndex, int randomIndex, String playerInput) {
+        int letterCount = 0;
+        for (int l = 0; l < convertWordToArray(randomIndex).length; l++) {
+            if (convertWordToArray(randomIndex)[l] == convertInputToArray(playerInput)[0])
+                letterCount++;
+        }
+        playersMatrix[playerIndex][1] = String.valueOf(Integer.parseInt(playersMatrix[playerIndex][1]) + letterCount * countPointsForOneLetter(randomIndex));
+    }
+
+    public static int countPointsForOneLetter(int randomIndex) {
+        return (int) Math.round(1000.0 / convertWordToArray(randomIndex).length);
     }
 
     public static String[][] createPlayersMatrix() {
