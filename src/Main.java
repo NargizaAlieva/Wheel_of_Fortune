@@ -16,11 +16,142 @@ public class Main {
 
         String playerInput = " ";
         int playerIndex = 0;
+
+        while (isGameOver(playersMatrix, wordSpase)) {
+            if (playerIndex >= playersMatrix.length)
+                playerIndex = 0;
+
+            printUpdatedDescription(playersMatrix, playerInput, wrongChar, correctChar, randomIndex, wordSpase);
+
+            System.out.println("\u001B[33m" + playersMatrix[playerIndex][0] + "\u001B[0m your turn!");
+            System.out.print("Enter Letter (or word): ");
+            playerInput = scanner.nextLine();
+            while (isLetterRepeated (playerInput, wrongChar,  correctChar)) {
+                printUpdatedDescription(playersMatrix, playerInput, wrongChar, correctChar, randomIndex, wordSpase);
+
+                System.out.print("\u001B[33m" + playersMatrix[playerIndex][0] + "\u001B[0m, this letter was already chosen.\nPlease enter another letter (or word): ");
+                playerInput = scanner.nextLine();
+            }
+
+            if (isItLetter(playerInput)) {
+                updateWordSpace(playerInput, randomIndex, wordSpase);
+
+                if (isLetterCorrect(playerInput, randomIndex)) {
+                    addPlayersPoints(playersMatrix, playerIndex, randomIndex, playerInput);
+
+                    while (isGameOver(playersMatrix, wordSpase) && isLetterCorrect(playerInput, randomIndex)) {
+                        printUpdatedDescription(playersMatrix, playerInput, wrongChar, correctChar, randomIndex, wordSpase);
+
+                        System.out.println("\u001B[33m" + playersMatrix[playerIndex][0] + "\u001B[0m your guessed the letter! You have extra chance!");
+                        System.out.print("Enter Letter (or word): ");
+                        playerInput = scanner.nextLine();
+
+                        while (isLetterRepeated (playerInput, wrongChar,  correctChar)) {
+                            printUpdatedDescription(playersMatrix, playerInput, wrongChar, correctChar, randomIndex, wordSpase);
+
+                            System.out.print("\u001B[33m" + playersMatrix[playerIndex][0] + "\u001B[0m, this letter was already chosen.\nPlease enter another letter (or word): ");
+                            playerInput = scanner.nextLine();
+                        }
+
+                        if (isItLetter(playerInput)) {
+                            updateWordSpace(playerInput, randomIndex, wordSpase);
+                            addPlayersPoints(playersMatrix, playerIndex, randomIndex, playerInput);
+                        } else {
+                            System.out.println("Congratulations " + playersMatrix[playerIndex][0] + " you win! You guessed the word!");
+                            System.exit(0);
+                        }
+                    }
+                }
+            } else {
+                if (!isWordCorrect(playerInput, randomIndex)) {
+                    if (playersMatrix.length == 2) {
+                        if (playerIndex + 1 >= playersMatrix.length) {
+                            playerIndex = 0;
+                            System.out.println("Congratulations " + playersMatrix[playerIndex][0] + " you are the last player so you win!");
+                        } else {
+                            System.out.println("Congratulations " + playersMatrix[++playerIndex][0] + " you are the last player so you win!");
+                        }
+                        System.exit(0);
+                    }
+                } else {
+                    System.out.println("Congratulations " + playersMatrix[playerIndex][0] + " you win! You guessed the word!");
+                    System.exit(0);
+                }
+            }
+            playerIndex++;
+        }
+
+        printFinalMessage (playersMatrix, wordSpase, randomIndex, playerIndex);
     }
 
     public static void clearScreen() {
         System.out.print("\033[H\033[2J");
         System.out.flush();
+    }
+
+    public static boolean isThereMoreWinners(String[][] playersMatrix) {
+        int winnersNumber = 0;
+        for (String[] plNum : playersMatrix) {
+            if (identifyHighestScore(playersMatrix) == Integer.parseInt(plNum[1])) {
+                winnersNumber++;
+            }
+        }
+        return winnersNumber > 1;
+    }
+
+    public static void printFinalMessage (String[][] playersMatrix, char[] wordSpase, int randomIndex, int playerNumber) {
+        clearScreen();
+        printPlayersScore (playersMatrix);
+        String winnersName = "";
+        if (isThereMoreWinners(playersMatrix)) {
+            System.out.println("Friendship wins!");
+            System.exit(0);
+        }else if (isHalfWordGuessed(playersMatrix)) {
+            winnersName = playersMatrix[startFinalRound(playersMatrix, playerNumber, randomIndex)][0];
+
+        } else if (isWordFullyGuessed(wordSpase)) {
+            for (String[] matrix : playersMatrix)
+                if (Integer.parseInt(matrix[1]) == identifyHighestScore(playersMatrix))
+                    winnersName = matrix[0];
+        }
+        System.out.println("Congratulations " + winnersName + " you win! You got highest score!");
+    }
+
+    public static int startFinalRound(String[][] playersMatrix, int playerIndex, int randomIndex) {
+        Scanner scanner = new Scanner(System.in);
+
+        int playerWithHighestScore = playerIndex - 1;
+        if (playerIndex - 1 < 0)
+            playerWithHighestScore = 0;
+
+        int index = playerIndex;
+        for (int i = 1; i < playersMatrix.length; i++) {
+            if (index >= playersMatrix.length)
+                index = 0;
+            System.out.println(playersMatrix[index][0] + ", please enter word!");
+            String playerInput = scanner.nextLine();
+            clearScreen();
+            printPlayersScore(playersMatrix);
+            if (isWordCorrect(playerInput, randomIndex))
+                return index;
+            index++;
+        }
+        return playerWithHighestScore;
+    }
+
+    public static boolean isGameOver (String[][] playersMatrix, char[] wordSpase) {
+        return !isWordFullyGuessed(wordSpase) && !isHalfWordGuessed(playersMatrix);
+    }
+
+    public static boolean isHalfWordGuessed (String[][] playersMatrix) {
+        return identifyHighestScore(playersMatrix) > 600;
+    }
+
+    public static boolean isWordFullyGuessed(char[] wordSpase) {
+        for (char c : wordSpase)
+            if (c == '_')
+                return false;
+        return true;
     }
 
     public static int identifyHighestScore(String[][] playersMatrix) {
