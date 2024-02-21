@@ -57,8 +57,12 @@ public class Main {
                             updateWordSpace(playerInput, randomIndex, wordSpase);
                             addPlayersPoints(playersMatrix, playerIndex, randomIndex, playerInput);
                         } else {
-                            System.out.println("Congratulations " + playersMatrix[playerIndex][0] + " you win! You guessed the word!");
-                            System.exit(0);
+                            if (!isWordCorrect(playerInput, randomIndex))
+                                playersMatrix = excludePlayer(playersMatrix, playerIndex);
+                            else {
+                                System.out.println("Congratulations " + playersMatrix[playerIndex][0] + " you win! You guessed the word!");
+                                System.exit(0);
+                            }
                         }
                     }
                 }
@@ -73,6 +77,7 @@ public class Main {
                         }
                         System.exit(0);
                     }
+                    playersMatrix = excludePlayer(playersMatrix, playerIndex);
                 } else {
                     System.out.println("Congratulations " + playersMatrix[playerIndex][0] + " you win! You guessed the word!");
                     System.exit(0);
@@ -153,6 +158,21 @@ public class Main {
                 return false;
         return true;
     }
+
+    public static String[][] excludePlayer(String[][] playersMatrix, int playerIndex) {
+        String[][] updatedPlayersMatrix = new String[playersMatrix.length - 1][2];
+        int index = 0;
+        for(int t = 0; t < playersMatrix.length; t++) {
+            if (t == playerIndex)
+                t++;
+            if (t >= playersMatrix.length)
+                t = 0;
+            System.arraycopy(playersMatrix[t], 0, updatedPlayersMatrix[index], 0, 2);
+            index++;
+        }
+        return updatedPlayersMatrix;
+    }
+
 
     public static int identifyHighestScore(String[][] playersMatrix) {
         int highestScore = 0;
